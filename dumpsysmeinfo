@@ -1,0 +1,57 @@
+Android Memory Management:-
+1. How to check the device memory status:
+    adb shell cat /proc/meminfo
+      e.g  $ cat /proc/meminfo
+MemTotal:         994548 kB
+MemFree:           65228 kB
+MemAvailable:     263724 kB
+Buffers:           21396 kB
+Cached:           304440 kB
+SwapCached:        25260 kB
+Active:           267424 kB
+Inactive:         503720 kB
+Active(anon):     110956 kB
+Inactive(anon):   351176 kB
+  MemAvailable: available RAM, the amount of memory available for allocation to any proces
+    
+    adb shell dumpsys meminfo  ==> gives overall data for each process
+    adb shell dumpsys meminfo <package_name> ==> will give memory information for particualar package
+     e.g
+         adb shell dumpsys meminfo com.android.systemui
+
+Applications Memory Usage (in Kilobytes):
+Uptime: 2030149 Realtime: 2030149
+
+** MEMINFO in pid 1974 [com.android.systemui] **
+                   Pss  Private  Private  SwapPss      Rss     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty    Total     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------   ------
+  Native Heap    16840    16804        0     6764    19428    34024    25037     5553
+  Dalvik Heap     9110     9032        0      136    13164    36444     9111    27333
+    check pss(proportional set size) -- actual process memory usage
+          USS(unique set size)-- Meomry consumed only by that process
+2. How to check the memory map of a process.
+    cat /proc/<pid>/smaps
+    adb shell showmap <pid>
+3. in Linux each page size is of 4 KB.
+   Pages are organized in virtually contiguous ranges called VMA (Virtual Memory Area).
+
+VMAs are created when a process requests a new pool of memory pages through the mmap() system call. 
+
+Applications rarely call mmap() directly. Those calls are typically mediated by the allocator, malloc()/operator new()
+for native processes or by the Android RunTime for Java apps.
+
+4. VMAs can be of two types: file-backed and anonymous.
+
+File-backed VMAs are a view of a file in memory. They are obtained passing a file descriptor to mmap(). 
+The kernel will serve page faults on the VMA through the passed file, so reading a pointer to the VMA becomes the equivalent of a read() on the file.
+File-backed VMAs are used, for instance, by the dynamic linker (ld) when executing new processes or dynamically loading libraries, or by the Android framework,
+when loading a new .dex library or accessing resources in the APK.
+
+Anonymous VMAs are memory-only areas not backed by any file. This is the way allocators request dynamic memory from the kernel. 
+Anonymous VMAs are obtained calling mmap(... MAP_ANONYMOUS ...).
+
+Physical memory is only allocated, in page granularity, once the application tries to read/write from a VMA. 
+If you allocate 32 MiB worth of pages but only touch one byte, your process' memory usage will only go up by 4KiB. 
+You will have increased your process' virtual memory by 32 MiB, but its resident physical memory by 4 KiB.
+https://perfetto.dev/docs/case-studies/memory
