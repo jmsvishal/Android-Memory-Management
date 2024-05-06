@@ -8,9 +8,13 @@ https://source.android.com/docs/core/tests/debug/understanding-logging
 
 
 what is tombstone logs in android?
+
+
 ans: /data/tombstones/. The tombstone is a file with extra data about the crashed process. 
 In particular, it contains stack traces for all the threads in the crashing process (not just the thread that caught the signal),
 a full memory map, and a list of all open file descriptors.
+
+
 
 In Android 8.0 and higher, crash_dump32 and crash_dump64 are spawned as needed.
 *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
@@ -34,11 +38,17 @@ backtrace:
     #06 pc 0001a7e5  /system/lib/libc.so (__start_thread+34)
 Tombstone written to: /data/tombstones/tombstone_06
 
+
+
 Getting a stack trace/tombstone from a running process
 You can use the debuggerd tool to get a stack dump from a running process. From the command line, invoke debuggerd using a process ID (PID) 
 to dump a full tombstone to stdout
 
+
+
 Reading tombstones
+
+
 
 Tombstone written to: /data/tombstones/tombstone_06
 This tells you where debuggerd wrote extra information. debuggerd will keep up to 10 tombstones, cycling through the numbers
